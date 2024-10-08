@@ -59,7 +59,6 @@ import com.projects.agrilembang.firebase.data.Sensor
 import com.projects.agrilembang.navigation.Screen
 import com.projects.agrilembang.ui.Components.Card.CustomCard
 import com.projects.agrilembang.ui.Components.Card.HomeCardLayout
-import com.projects.agrilembang.ui.Components.Chart.AverageLineChartView
 import com.projects.agrilembang.ui.Components.Image3D.HeatmapImage
 import com.projects.agrilembang.ui.theme.interbold
 import com.projects.agrilembang.ui.theme.intermedium

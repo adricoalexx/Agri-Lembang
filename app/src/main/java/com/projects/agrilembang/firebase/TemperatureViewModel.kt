@@ -23,7 +23,7 @@ class TemperatureViewModel(
         fetchTemperatureData()
     }
 
-    private fun fetchTemperatureData(){
+    private fun fetchTemperatureData() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val temperatureList = mutableListOf<Float>()
@@ -31,7 +31,7 @@ class TemperatureViewModel(
                     val sensor = sensorSnapshot.getValue(Sensor::class.java)
 
                     if (sensor != null && sensor.temp != null && sensor.temp.isNotEmpty()) {
-                        sensor.temp.replace("'","").toFloatOrNull()?.let {
+                        sensor.temp.replace("'", "").toFloatOrNull()?.let {
                             temperatureList.add(it)
                         } ?: run {
                             Log.e("SensorData", "Invalid temperature format for sensor: $sensor")
@@ -41,10 +41,13 @@ class TemperatureViewModel(
                 }
                 Log.d("SensorData", "Updated temperatures: $temperatureList")
 
-                if (temperatureList.size == 6 && temperatureList.distinct().size == temperatureList.size) {
+                if (temperatureList.size == 6) {
                     _sensorTemps.value = temperatureList
                 } else {
-                    Log.e("SensorData", "Unexpected number of temperatures: ${temperatureList.size}")
+                    Log.e(
+                        "SensorData",
+                        "Unexpected number of temperatures: ${temperatureList.size}"
+                    )
                 }
             }
 

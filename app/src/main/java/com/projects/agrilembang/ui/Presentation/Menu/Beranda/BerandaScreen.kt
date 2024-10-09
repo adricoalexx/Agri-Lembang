@@ -2,51 +2,36 @@ package com.projects.agrilembang.ui.Presentation.Menu.Beranda
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.database.DataSnapshot
@@ -54,16 +39,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.agrilembang.R
+import com.projects.agrilembang.firebase.HeatmapViewModel
 import com.projects.agrilembang.firebase.SensorViewModel
 import com.projects.agrilembang.firebase.data.Sensor
 import com.projects.agrilembang.navigation.Screen
-import com.projects.agrilembang.ui.Components.Card.CustomCard
 import com.projects.agrilembang.ui.Components.Card.HomeCardLayout
-import com.projects.agrilembang.ui.Components.Image3D.HeatmapImage
+import com.projects.agrilembang.ui.Components.Heatmap.HeatmapLayout
 import com.projects.agrilembang.ui.theme.interbold
-import com.projects.agrilembang.ui.theme.intermedium
 import com.projects.agrilembang.ui.theme.interregular
-import com.projects.agrilembang.ui.theme.intersemibold
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -74,6 +57,7 @@ fun BerandaScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
     sensorViewModel: SensorViewModel = viewModel(),
+    heatmapViewModel: HeatmapViewModel = viewModel()
 ) {
     val dateFormat = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID"))
     val currentDate = dateFormat.format(Date())
@@ -85,6 +69,18 @@ fun BerandaScreen(
     }
     val url = "https://gapoktanagrilembang.com/dashboard"
     val context = LocalContext.current
+
+    val sensorTemp by heatmapViewModel.sensorTemp.observeAsState(emptyList())
+    val sensorNames by heatmapViewModel.sensorNames.observeAsState(emptyList())
+    val positions = listOf(
+        Offset(20f, 220f),
+        Offset(230f, 150f),
+        Offset(250f, 300f),
+        Offset(430f, 200f),
+        Offset(500f, 400f),
+        Offset(850f, 280f)
+    )
+
     LaunchedEffect(Unit) {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -182,15 +178,15 @@ fun BerandaScreen(
         Spacer(
             modifier = modifier.height(10.dp)
         )
-        Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
-        ) {
-            HeatmapImage(sensorData)
+        if (sensorTemp.isNotEmpty()) {
+            HeatmapLayout(
+                context = LocalContext.current,
+                temperatures = sensorTemp,
+                positions = positions,
+                sensorNames = sensorNames
+            )
+        } else {
+            Text(text = "Loading chart data...")
         }
         LazyColumn (
             modifier = Modifier

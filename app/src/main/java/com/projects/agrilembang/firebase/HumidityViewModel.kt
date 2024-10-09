@@ -20,31 +20,31 @@ class HumidityViewModel(
     val sensorHumid : LiveData<List<Float>> get() = _sensorHumid
 
     init {
-        fetchHumididtyData()
+        fetchHumidityData()
     }
 
-    private fun fetchHumididtyData(){
+    private fun fetchHumidityData(){
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val temperatureList = mutableListOf<Float>()
+                val humidityList = mutableListOf<Float>() // Change variable to `humidityList`
                 for (sensorSnapshot in snapshot.children) {
                     val sensor = sensorSnapshot.getValue(Sensor::class.java)
 
                     if (sensor != null && sensor.humid != null && sensor.humid.isNotEmpty()) {
                         sensor.humid.replace("'","").toFloatOrNull()?.let {
-                            temperatureList.add(it)
+                            humidityList.add(it) // Use `humidityList`
                         } ?: run {
-                            Log.e("SensorData", "Invalid temperature format for sensor: $sensor")
+                            Log.e("SensorData", "Invalid humidity format for sensor: $sensor")
                         }
-                        Log.e("SensorData", "Sensor is null or temperature is missing: $sensor")
+                        Log.e("SensorData", "Sensor is null or humidity is missing: $sensor")
                     }
                 }
-                Log.d("SensorData", "Updated temperatures: $temperatureList")
+                Log.d("SensorData", "Updated humidity: $humidityList") // Log for humidity
 
-                if (temperatureList.size == 6 && temperatureList.distinct().size == temperatureList.size) {
-                    _sensorHumid.value = temperatureList
+                if (humidityList.size == 6 && humidityList.distinct().size == humidityList.size) {
+                    _sensorHumid.value = humidityList // Use `humidityList`
                 } else {
-                    Log.e("SensorData", "Unexpected number of temperatures: ${temperatureList.size}")
+                    Log.e("SensorData", "Unexpected number of humidity values: ${humidityList.size}")
                 }
             }
 

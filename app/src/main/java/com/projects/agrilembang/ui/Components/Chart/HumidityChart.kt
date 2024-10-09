@@ -43,7 +43,7 @@ private fun LineChart.updateChartData(
         Entry(index.toFloat(), temp)
     }
 
-    val dataSet = LineDataSet(entries, "Sensor Temperature").apply {
+    val dataSet = LineDataSet(entries, "Sensor Humidity").apply {
         color = Color(0xFF3354F4).toArgb()
         valueTextColor = android.graphics.Color.BLACK
         lineWidth = 3f

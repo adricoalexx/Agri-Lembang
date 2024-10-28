@@ -30,7 +30,8 @@ import com.projects.agrilembang.ui.theme.intersemibold
 fun SuhuScreen(
     viewModel: TemperatureViewModel = viewModel()
 ) {
-    val temperature by viewModel.sensorTemps.observeAsState(emptyList())
+
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -69,14 +70,7 @@ fun SuhuScreen(
                         fontFamily = intersemibold,
                         color = Color.Gray
                     )
-                    if (temperature.isNotEmpty()) {
-                        TemperatureChart(
-                            context = LocalContext.current,
-                            temperatures = temperature
-                        )
-                    } else {
-                        Text(text = "Loading chart data...")
-                    }
+                    TemperatureChart(viewModel.tempData)
                 }
             }
         SensorLayout()

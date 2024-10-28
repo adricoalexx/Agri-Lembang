@@ -1,57 +1,91 @@
 package com.projects.agrilembang.firebase
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.agrilembang.firebase.data.Sensor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class HumidityViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val database = FirebaseDatabase.getInstance().reference.child("Sensor")
+    var sensorData = mutableStateOf<Map<String, Sensor>>(emptyMap())
+        private set
+    private val _humidData = MutableStateFlow<Map<String, List<Pair<Float, String>>>>(emptyMap())
+    val humidData: StateFlow<Map<String, List<Pair<Float, String>>>> = _humidData
 
-    private val _sensorHumid = MutableLiveData<List<Float>>()
-    val sensorHumid : LiveData<List<Float>> get() = _sensorHumid
+    private val maxSteps = 6
+    private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
     init {
-        fetchHumidityData()
+        fetchSensorData()
+        TempLoop()
     }
 
-    private fun fetchHumidityData(){
+    private fun fetchSensorData() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val humidityList = mutableListOf<Float>() // Change variable to `humidityList`
-                for (sensorSnapshot in snapshot.children) {
-                    val sensor = sensorSnapshot.getValue(Sensor::class.java)
-
-                    if (sensor != null && sensor.humid != null && sensor.humid.isNotEmpty()) {
-                        sensor.humid.replace("'","").toFloatOrNull()?.let {
-                            humidityList.add(it) // Use `humidityList`
-                        } ?: run {
-                            Log.e("SensorData", "Invalid humidity format for sensor: $sensor")
-                        }
-                        Log.e("SensorData", "Sensor is null or humidity is missing: $sensor")
-                    }
+                val sensorMap = snapshot.children.associate { dataSnapshot ->
+                    val key = dataSnapshot.key ?: ""
+                    val sensor = dataSnapshot.getValue(Sensor::class.java) ?: Sensor()
+                    key to sensor
                 }
-                Log.d("SensorData", "Updated humidity: $humidityList") // Log for humidity
-
-                if (humidityList.size == 6 && humidityList.distinct().size == humidityList.size) {
-                    _sensorHumid.value = humidityList // Use `humidityList`
-                } else {
-                    Log.e("SensorData", "Unexpected number of humidity values: ${humidityList.size}")
-                }
+                sensorData.value = sensorMap
+                Log.d("Fetch Database", "onDataChange: $sensorMap")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Error : ", "onCancelled: ${error.message}")
+                Log.e("Error Database", "onCancelled: ${error.message}", )
             }
 
         })
+    }
+
+    private fun updateChartData() {
+        viewModelScope.launch {
+            val updateData = mutableMapOf<String, List<Pair<Float, String>>>()
+
+            sensorData.value.forEach { (sensorName, sensor) ->
+                sensor.humid?.toFloatOrNull()?.let { newData ->
+                    val currentTime = dateFormat.format(Date())
+                    val existingData =
+                        _humidData.value[sensorName]?.toMutableList() ?: mutableListOf()
+
+                    if (existingData.size >= maxSteps) {
+                        existingData.removeAt(0)
+                    }
+                    existingData.add(Pair(newData, currentTime))
+                    updateData[sensorName] = existingData
+                }
+            }
+            if (updateData.isNotEmpty()) {
+                _humidData.value = updateData
+            }
+        }
+    }
+
+    private fun TempLoop(){
+        viewModelScope.launch {
+            updateChartData()
+            while (true) {
+                delay(5000L)
+                updateChartData()
+            }
+        }
     }
 }

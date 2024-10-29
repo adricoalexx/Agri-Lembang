@@ -39,7 +39,7 @@ import com.projects.agrilembang.utils.Fab
 @Composable
 fun AgriLembangApp(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

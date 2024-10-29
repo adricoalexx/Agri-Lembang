@@ -30,6 +30,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.projects.agrilembang.navigation.Screen
 import com.projects.agrilembang.R
+import com.projects.agrilembang.datastore.SharedPreferencesManager
+import com.projects.agrilembang.datastore.UserPreferences
 import com.projects.agrilembang.firebase.LoginViewModel
 import com.projects.agrilembang.ui.Components.Button.CustomButton
 import com.projects.agrilembang.ui.Components.TextField.CustomTextField
@@ -49,6 +51,9 @@ fun LoginScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val state = viewModel.state.collectAsState(initial = null)
+    val dataStore = remember { UserPreferences(context) }
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+
     Column(
         modifier
             .fillMaxSize()
@@ -154,6 +159,11 @@ fun LoginScreen(
                         } else {
                             viewModel.loginUser(email, password) { success ->
                                 if (success) {
+                                    coroutineScope.launch {
+                                        dataStore.saveStatus(true)
+                                        sharedPreferencesManager.email = email
+                                        sharedPreferencesManager.password = password
+                                    }
                                     navController.navigate(Screen.Beranda.route){
                                         popUpTo(Screen.Login.route){
                                             inclusive = true

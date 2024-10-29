@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,20 +38,29 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.projects.agrilembang.R
+import com.projects.agrilembang.datastore.SharedPreferencesManager
+import com.projects.agrilembang.datastore.UserPreferences
 import com.projects.agrilembang.firebase.LoginState
 import com.projects.agrilembang.firebase.LoginViewModel
 import com.projects.agrilembang.navigation.Screen
 import com.projects.agrilembang.ui.theme.intermedium
 import com.projects.agrilembang.ui.theme.intersemibold
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
-    ) {
+) {
     var isChecked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val state by viewModel.state.collectAsState(initial = LoginState())
+    val coroutineScope = rememberCoroutineScope()
+    val dataStore = remember { UserPreferences(context) }
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    val email = sharedPreferencesManager.email ?: ""
+    val password = sharedPreferencesManager.password ?: ""
+
 
     Column(
         modifier = Modifier
@@ -64,14 +74,8 @@ fun ProfileScreen(
             fontSize = 20.sp,
             fontFamily = intersemibold
         )
-
-        Image(painter = painterResource(R.drawable.userpic),
-            contentDescription = "",
-            modifier = Modifier
-                .size(80.dp)
-        )
         Text(
-            "Adrico Alexander",
+            email,
             fontSize = 24.sp,
             fontFamily = intersemibold
         )
@@ -117,41 +121,6 @@ fun ProfileScreen(
                         )
                         Text(
                             "Akun Saya",
-                            fontFamily = intermedium,
-                            fontSize = 16.sp
-                        )
-                    }
-                    Image(
-                        painter = painterResource(R.drawable.forwardicon),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(14.dp)
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .background(Color(0xFF979797))
-                        .fillMaxWidth()
-                )
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp),
-                    ){
-                        Image(
-                            painter = painterResource(R.drawable.settingsicon),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                        Text(
-                            "Pengaturan",
                             fontFamily = intermedium,
                             fontSize = 16.sp
                         )
@@ -257,6 +226,10 @@ fun ProfileScreen(
                         .clickable {
                             viewModel.logoutUser { success ->
                                 if (success){
+                                    coroutineScope.launch {
+                                        dataStore.clearStatus()
+                                        sharedPreferencesManager.clear()
+                                    }
                                     Toast.makeText(context, "Logout Berhasil !", Toast.LENGTH_SHORT).show()
                                     navController.navigate(Screen.Login.route){
                                         popUpTo(Screen.ProfileDetail.route){

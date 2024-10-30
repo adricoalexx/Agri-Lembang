@@ -1,5 +1,6 @@
 package com.projects.agrilembang.ui.Components.Chart
 
+import androidx.compose.animation.core.animate
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -100,6 +101,8 @@ fun LineChartView(
 
                 setTouchEnabled(true)
                 setPinchZoom(true)
+
+
                 invalidate()
             }
         },
@@ -115,6 +118,7 @@ fun LineChartView(
 
             chart.data.notifyDataChanged()
             chart.notifyDataSetChanged()
+
             chart.invalidate()
 
             if (lineData.entryCount > 0) {

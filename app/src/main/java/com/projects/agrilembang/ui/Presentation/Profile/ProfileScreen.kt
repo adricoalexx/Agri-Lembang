@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
@@ -59,220 +60,250 @@ fun ProfileScreen(
     val dataStore = remember { UserPreferences(context) }
     val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
     val email = sharedPreferencesManager.email ?: ""
-    val password = sharedPreferencesManager.password ?: ""
 
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 50.dp, start = 20.dp, end = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Text(
-            "Akun",
-            fontSize = 20.sp,
-            fontFamily = intersemibold
-        )
-        Text(
-            email,
-            fontSize = 24.sp,
-            fontFamily = intersemibold
-        )
-        Spacer(modifier = Modifier.height(15.dp)
-        )
-        Box(
+            .padding(20.dp)
+    ) {
+        // IconButton diletakkan di posisi atas
+        IconButton(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Color(0xFFFBFBFB),
-                    RoundedCornerShape(20.dp)
-                )
-        ){
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(7.dp)
-            ){
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            navController.navigate(Screen.ProfileDetail.route){
-                                popUpTo(Screen.Profile.route){
-                                    inclusive = true
-                                }
-                            }
-                        }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp),
-                    ){
-                        Image(
-                            painter = painterResource(R.drawable.profileicon),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                        Text(
-                            "Akun Saya",
-                            fontFamily = intermedium,
-                            fontSize = 16.sp
-                        )
-                    }
-                    Image(
-                        painter = painterResource(R.drawable.forwardicon),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(14.dp)
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .background(Color(0xFF979797))
-                        .fillMaxWidth()
-                )
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp),
-                    ){
-                        Image(
-                            painter = painterResource(R.drawable.notificationicon),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                        Text(
-                            "Notifikasi",
-                            fontFamily = intermedium,
-                            fontSize = 16.sp
-                        )
-                    }
-                    Switch(
-                        checked = isChecked,
-                        onCheckedChange = {
-                            isChecked = it
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedIconColor = Color.Gray,
-                            checkedTrackColor = Color(0xFF155B36),
-                            checkedThumbColor = Color.White,
-                            checkedBorderColor = Color(0xFF155B36),
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color.LightGray,
-                            uncheckedIconColor = Color.LightGray,
-                            uncheckedBorderColor = Color.White,
-                        )
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .background(Color(0xFF979797))
-                        .fillMaxWidth()
-                )
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp),
-                    ){
-                        Image(
-                            painter = painterResource(R.drawable.cellphoneicon),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                        Text(
-                            "Hubungi Kami",
-                            fontFamily = intermedium,
-                            fontSize = 16.sp
-                        )
-                    }
-                    Image(
-                        painter = painterResource(R.drawable.forwardicon),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(14.dp)
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .background(Color(0xFF979797))
-                        .fillMaxWidth()
-                )
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            viewModel.logoutUser { success ->
-                                if (success){
-                                    coroutineScope.launch {
-                                        dataStore.clearStatus()
-                                        sharedPreferencesManager.clear()
-                                    }
-                                    Toast.makeText(context, "Logout Berhasil !", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(Screen.Login.route){
-                                        popUpTo(Screen.ProfileDetail.route){
-                                            inclusive = true
-                                        }
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Logout error", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp),
-                    ){
-                        Image(
-                            painter = painterResource(R.drawable.quiticon),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                        Text(
-                            "Keluar",
-                            fontFamily = intermedium,
-                            fontSize = 16.sp,
-                            color = Color(0xFFD40000)
-                        )
+                .size(24.dp)
+                .align(Alignment.TopStart), // Posisikan di pojok kiri atas
+            onClick = {
+                navController.navigate(Screen.Beranda.route) {
+                    popUpTo(Screen.Profile.route) {
+                        inclusive = true
                     }
                 }
-                if (state.loading){
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                }
+            }
+        ) {
+            Image(
+                painter = painterResource(R.drawable.backbutton),
+                contentDescription = "Back Button"
+            )
+        }
 
-                state.success?.let {
-                    Text(it, color = Color.Green)
-                }
-                state.error?.let {
-                    Text(it, color = Color.Red)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 50.dp, start = 20.dp, end = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Akun",
+                fontSize = 20.sp,
+                fontFamily = intersemibold
+            )
+            Text(
+                email,
+                fontSize = 24.sp,
+                fontFamily = intersemibold
+            )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color(0xFFFBFBFB),
+                        RoundedCornerShape(20.dp)
+                    )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                navController.navigate(Screen.ProfileDetail.route) {
+                                    popUpTo(Screen.Profile.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(11.dp),
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.profileicon),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(40.dp)
+                            )
+                            Text(
+                                "Akun Saya",
+                                fontFamily = intermedium,
+                                fontSize = 16.sp
+                            )
+                        }
+                        Image(
+                            painter = painterResource(R.drawable.forwardicon),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(14.dp)
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier
+                            .height(1.dp)
+                            .background(Color(0xFF979797))
+                            .fillMaxWidth()
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(11.dp),
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.notificationicon),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(40.dp)
+                            )
+                            Text(
+                                "Notifikasi",
+                                fontFamily = intermedium,
+                                fontSize = 16.sp
+                            )
+                        }
+                        Switch(
+                            checked = isChecked,
+                            onCheckedChange = {
+                                isChecked = it
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedIconColor = Color.Gray,
+                                checkedTrackColor = Color(0xFF155B36),
+                                checkedThumbColor = Color.White,
+                                checkedBorderColor = Color(0xFF155B36),
+                                uncheckedThumbColor = Color.White,
+                                uncheckedTrackColor = Color.LightGray,
+                                uncheckedIconColor = Color.LightGray,
+                                uncheckedBorderColor = Color.White,
+                            )
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier
+                            .height(1.dp)
+                            .background(Color(0xFF979797))
+                            .fillMaxWidth()
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(11.dp),
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.cellphoneicon),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(40.dp)
+                            )
+                            Text(
+                                "Hubungi Kami",
+                                fontFamily = intermedium,
+                                fontSize = 16.sp
+                            )
+                        }
+                        Image(
+                            painter = painterResource(R.drawable.forwardicon),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(14.dp)
+                        )
+                    }
+                    Spacer(
+                        modifier = Modifier
+                            .height(1.dp)
+                            .background(Color(0xFF979797))
+                            .fillMaxWidth()
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                viewModel.logoutUser { success ->
+                                    if (success) {
+                                        coroutineScope.launch {
+                                            dataStore.clearStatus()
+                                            sharedPreferencesManager.clear()
+                                        }
+                                        Toast.makeText(
+                                            context,
+                                            "Logout Berhasil !",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController.navigate(Screen.Login.route) {
+                                            popUpTo(Screen.ProfileDetail.route) {
+                                                inclusive = true
+                                            }
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Logout error", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(11.dp),
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.quiticon),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(40.dp)
+                            )
+                            Text(
+                                "Keluar",
+                                fontFamily = intermedium,
+                                fontSize = 16.sp,
+                                color = Color(0xFFD40000)
+                            )
+                        }
+                    }
+                    if (state.loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
+
+                    state.success?.let {
+                        Text(it, color = Color.Green)
+                    }
+                    state.error?.let {
+                        Text(it, color = Color.Red)
+                    }
                 }
             }
         }

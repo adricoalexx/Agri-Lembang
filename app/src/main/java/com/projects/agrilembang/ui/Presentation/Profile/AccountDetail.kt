@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.projects.agrilembang.R
+import com.projects.agrilembang.datastore.SharedPreferencesManager
 import com.projects.agrilembang.navigation.Screen
 import com.projects.agrilembang.ui.Components.Button.CustomButton
 import com.projects.agrilembang.ui.Components.TextField.CustomTextField
@@ -38,12 +39,12 @@ import com.projects.agrilembang.ui.theme.poppinsmedium
 fun AccountDetail(
     navController: NavController
 ) {
-    var namapengguna by remember { mutableStateOf("Adrico Alexander") }
-    var namalengkap by remember { mutableStateOf("Adrico Alexander") }
-    var email by remember { mutableStateOf("adrico.alexander@gmail.com") }
-    var nomortelepon by remember { mutableStateOf("08515621726") }
-    var katasandi by remember { mutableStateOf("adricoalexx") }
+
+
     val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    var email = sharedPreferencesManager.email ?: ""
+    var password = sharedPreferencesManager.password ?: ""
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,36 +87,6 @@ fun AccountDetail(
         Spacer(modifier = Modifier.height(10.dp)
         )
         Text(
-            "Nama Lengkap",
-            fontSize = 14.sp,
-            fontFamily = poppinsmedium
-        )
-        CustomTextField(
-            value = namalengkap,
-            onValueChange = {
-                namalengkap= it
-            },
-            placeholder = "Nama Lengkap",
-            isPassword = false,
-            modifier = Modifier
-                .size(346.dp, 55.dp)
-        )
-        Text(
-            "Nama Pengguna",
-            fontSize = 14.sp,
-            fontFamily = poppinsmedium
-        )
-        CustomTextField(
-            value = namapengguna,
-            onValueChange = {
-                namapengguna = it
-            },
-            placeholder = "Nama Pengguna",
-            isPassword = false,
-            modifier = Modifier
-                .size(346.dp, 55.dp)
-        )
-        Text(
             "Email",
             fontSize = 14.sp,
             fontFamily = poppinsmedium
@@ -131,29 +102,14 @@ fun AccountDetail(
                 .size(346.dp, 55.dp)
         )
         Text(
-            "Nomor Telepon",
-            fontSize = 14.sp,
-            fontFamily = poppinsmedium
-        )
-        CustomTextField(
-            value = nomortelepon,
-            onValueChange = {
-                nomortelepon = it
-            },
-            placeholder = "Nomor Telepon",
-            isPassword = false,
-            modifier = Modifier
-                .size(346.dp, 55.dp)
-        )
-        Text(
             "Kata Sandi",
             fontSize = 14.sp,
             fontFamily = poppinsmedium
         )
         CustomTextField(
-            value = katasandi,
+            value = password,
             onValueChange = {
-                katasandi = it
+                password = it
             },
             placeholder = "Kata Sandi",
             isPassword = true,

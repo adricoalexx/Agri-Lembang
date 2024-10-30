@@ -27,18 +27,17 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun LineChartView(
-    chartData : List<Float>,
-    title : String,
-    colors : Color,
-    gradient : Int
+    chartData: List<Float>,
+    title: String,
+    colors: Color,
+    gradient: Int
 ) {
     val context = LocalContext.current
-    val entries = chartData.mapIndexed { index , data ->
+    val entries = chartData.mapIndexed { index, data ->
         Entry(index.toFloat(), data)
     }
 
-
-    val stepLabels = ( 0 until 6).map { "$it" }
+    val stepLabels = (0 until 6).map { "$it" }
 
     val dataSet = LineDataSet(entries, title).apply {
         color = colors.toArgb()
@@ -102,7 +101,6 @@ fun LineChartView(
             chart.setVisibleXRangeMaximum(stepLabels.size.toFloat())
             chart.moveViewToX(entries.size.toFloat())
             chart.invalidate()
-
         }
     )
 }

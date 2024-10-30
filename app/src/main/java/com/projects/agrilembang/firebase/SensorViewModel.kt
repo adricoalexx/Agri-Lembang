@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.agrilembang.firebase.data.Sensor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.single
@@ -36,7 +37,7 @@ class SensorViewModel(
 
 
     init {
-        fetchSensorData()
+        startFetchingSensorData()
         savedStateHandle.set("sensorsData", _sensorsData.value)
     }
 
@@ -99,4 +100,12 @@ class SensorViewModel(
         })
     }
 
+    private fun startFetchingSensorData() {
+        viewModelScope.launch {
+            while (true) {
+                fetchSensorData()
+                delay(5000L)
+            }
+        }
+    }
 }

@@ -32,36 +32,18 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.projects.agrilembang.R
 import com.projects.agrilembang.firebase.SensorViewModel
+import com.projects.agrilembang.firebase.TemperatureViewModel
 import com.projects.agrilembang.firebase.data.Sensor
 import com.projects.agrilembang.ui.Components.Chart.SensorCardWithChart
 import com.projects.agrilembang.ui.theme.intersemibold
 
 @Composable
 fun SensorLayout(
-    sensorViewModel : SensorViewModel = viewModel()
+    sensorViewModel : TemperatureViewModel = viewModel()
 ) {
 
-    val sensorsData by sensorViewModel.sensorsData.collectAsState()
-    val database = FirebaseDatabase.getInstance().reference.child("Sensor")
+    val sensorsData by sensorViewModel.tempData.collectAsState()
 
-    LaunchedEffect(Unit) {
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val sensors = snapshot.children.mapNotNull { it.getValue(Sensor::class.java) }
-                sensors.forEach { sensor ->
-                    sensor.temp?.toFloatOrNull()?.let { humid ->
-                        sensorViewModel.updateData(sensor.device.toString(), humid)
-                    }
-                }
-                Log.d("Humidity", "onDataChange: $sensors")
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Humidity Error", "onCancelled: $error" )
-            }
-
-        })
-    }
     LazyRow (
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +51,7 @@ fun SensorLayout(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ){
         items(sensorsData.keys.toList()) {
-            val sensorData = sensorsData[it] ?: emptyList()
+            val sensorData = sensorsData[it]?.map { it.first } ?: emptyList()
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(Color.White),
@@ -91,7 +73,7 @@ fun SensorLayout(
                         fontFamily = intersemibold,
                         color = Color.Gray
                     )
-                    SensorCardWithChart(it, sensorData, "Temperature", Color(0xFF155B36), R.drawable.chart_gradient_2)
+                    SensorCardWithChart(it, sensorData, "Temperature", Color(0xFF155B36), R.drawable.chart_gradient_2, )
                 }
             }
         }

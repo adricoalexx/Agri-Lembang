@@ -44,7 +44,6 @@ fun TemperatureChart(
 
         dataPoints.forEachIndexed { index, (value, label) ->
             entries.add(Entry(index.toFloat(), value))
-            // Track the min and max values
             minValue = minOf(minValue, value)
             maxValue = maxOf(maxValue, value)
             if (index >= labels.size) { // Ensure unique labels are added sequentially

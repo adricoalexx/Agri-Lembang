@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.projects.agrilembang.firebase.HeatmapViewModel
 import com.projects.agrilembang.firebase.HumidityViewModel
 import com.projects.agrilembang.firebase.SensorViewModel
 import com.projects.agrilembang.firebase.TemperatureViewModel
@@ -43,7 +44,9 @@ fun AgriLembangApp(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     humidityViewModel: HumidityViewModel = viewModel(),
-    temperatureViewModel: TemperatureViewModel = viewModel()
+    temperatureViewModel: TemperatureViewModel = viewModel(),
+    sensorViewModel: SensorViewModel = viewModel(),
+    heatmapViewModel: HeatmapViewModel = viewModel()
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -102,7 +105,7 @@ fun AgriLembangApp(
                 ForgotPasswordScreen(navController = navController)
             }
             composable(Screen.Beranda.route){
-                BerandaScreen(navController = navController)
+                BerandaScreen(navController = navController, sensorViewModel = sensorViewModel, heatmapViewModel = heatmapViewModel)
             }
             composable(Screen.Kelembapan.route){
                 KelembapanScreen(humidityViewModel)

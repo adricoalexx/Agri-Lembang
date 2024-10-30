@@ -71,7 +71,7 @@ fun SuhuScreen(
                         fontFamily = intersemibold,
                     )
                     Text(
-                        text = "Data Realtime Per 3 jam",
+                        text = "Data Realtime Per 5 Menit",
                         fontSize = 12.sp,
                         fontFamily = intersemibold,
                         color = Color.Gray
@@ -86,7 +86,6 @@ fun SuhuScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ){
             items(sensorsData.keys.toList()) {
-                val sensorData = sensorsData[it]?.map { it.first } ?: emptyList()
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(Color.White),
@@ -103,12 +102,12 @@ fun SuhuScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
                         Text(
-                            text = "Data Realtime per 3 jam",
+                            text = "Data Realtime per 5 Menit",
                             fontSize = 12.sp,
                             fontFamily = intersemibold,
                             color = Color.Gray
                         )
-                        SensorCardWithChart(it, sensorData, "Temperature", Color(0xFF155B36), R.drawable.chart_gradient_2, )
+                        SensorCardWithChart(it, viewModel.tempData, "Temperature", Color(0xFF155B36), R.drawable.chart_gradient_2, )
                     }
                 }
             }

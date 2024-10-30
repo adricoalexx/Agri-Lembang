@@ -56,8 +56,8 @@ import java.util.Locale
 fun BerandaScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
-    sensorViewModel: SensorViewModel = viewModel(),
-    heatmapViewModel: HeatmapViewModel = viewModel()
+    sensorViewModel: SensorViewModel ,
+    heatmapViewModel: HeatmapViewModel
 ) {
     val dateFormat = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID"))
     val currentDate = dateFormat.format(Date())

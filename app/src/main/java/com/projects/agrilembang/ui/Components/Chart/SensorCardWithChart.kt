@@ -13,27 +13,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
 import com.projects.agrilembang.ui.theme.intersemibold
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun SensorCardWithChart(
-    sensorName : String,
-    chartData : List<Float>,
-    dataType : String,
-    color : Color,
-    gradient : Int
+    sensorName: String,
+    chartData: StateFlow<Map<String, List<Pair<Float, String>>>>,
+    dataType: String,
+    color: Color,
+    gradient: Int
 ) {
-    Column (
+    Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .height(300.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         Text(
             text = sensorName,
             fontSize = 17.sp,
             fontFamily = intersemibold
         )
-        LineChartView(chartData = chartData, title = dataType, color, gradient)
+        LineChartView(
+            chartDataState = chartData,
+            title = sensorName, // Pastikan title sesuai dengan nama sensor
+            colors = color,
+            gradient = gradient
+        )
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,21 +25,29 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.projects.agrilembang.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun LineChartView(
-    chartData: List<Float>,
+    chartDataState: StateFlow<Map<String, List<Pair<Float, String>>>>,
     title: String,
     colors: Color,
     gradient: Int
 ) {
+    // Mengamati data dari StateFlow
+    val chartData by chartDataState.collectAsState()
     val context = LocalContext.current
-    val entries = chartData.mapIndexed { index, data ->
-        Entry(index.toFloat(), data)
+
+    // Memastikan bahwa title sebagai key memiliki data
+    val singleSensorData = chartData[title] ?: emptyList()
+    val entries = singleSensorData.mapIndexed { index, (value, _) ->
+        Entry(index.toFloat(), value)
     }
 
-    val stepLabels = (0 until 6).map { "$it" }
+    // Menggunakan timestamp dari data sebagai label X-axis
+    val stepLabels = singleSensorData.map { it.second }
 
+    // Buat LineDataSet hanya jika data tersedia
     val dataSet = LineDataSet(entries, title).apply {
         color = colors.toArgb()
         valueTextColor = android.graphics.Color.BLACK
@@ -60,16 +69,17 @@ fun LineChartView(
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(false)
-                    labelCount = stepLabels.size
                     granularity = 1f
-                    axisMinimum = 0f
-                    axisMaximum = stepLabels.size.toFloat() - 1
+                    setLabelCount(5, true) // Hanya tampilkan 5 label terakhir
+                    axisMinimum = (stepLabels.size - 5).coerceAtLeast(0).toFloat()
+                    axisMaximum = (stepLabels.size - 1).coerceAtLeast(4).toFloat()
                     valueFormatter = IndexAxisValueFormatter(stepLabels)
+                    labelRotationAngle = 45f
                 }
                 axisLeft.apply {
                     setDrawGridLines(false)
-                    axisMinimum = 0f
-                    axisMaximum = 90f
+                    axisMinimum = singleSensorData.minOfOrNull { it.first }?.minus(5f) ?: 0f
+                    axisMaximum = singleSensorData.maxOfOrNull { it.first }?.plus(5f) ?: 90f
                     granularity = 1f
                 }
                 axisRight.isEnabled = false
@@ -88,8 +98,6 @@ fun LineChartView(
                 axisLeft.setDrawGridLines(false)
                 axisRight.setDrawGridLines(false)
 
-                description.isEnabled = false
-
                 setTouchEnabled(true)
                 setPinchZoom(true)
                 invalidate()
@@ -97,10 +105,22 @@ fun LineChartView(
         },
         update = { chart ->
             chart.data = lineData
+            chart.xAxis.valueFormatter = IndexAxisValueFormatter(stepLabels)
+            chart.xAxis.setLabelCount(5, true)
+            chart.xAxis.axisMaximum = (stepLabels.size - 1).coerceAtLeast(4).toFloat()
+            chart.xAxis.axisMinimum = (stepLabels.size - 5).coerceAtLeast(0).toFloat()
+
+            chart.axisLeft.axisMinimum = singleSensorData.minOfOrNull { it.first }?.minus(5f) ?: 0f
+            chart.axisLeft.axisMaximum = singleSensorData.maxOfOrNull { it.first }?.plus(5f) ?: 90f
+
             chart.data.notifyDataChanged()
-            chart.setVisibleXRangeMaximum(stepLabels.size.toFloat())
-            chart.moveViewToX(entries.size.toFloat())
+            chart.notifyDataSetChanged()
             chart.invalidate()
+
+            if (lineData.entryCount > 0) {
+                chart.setVisibleXRangeMaximum(5f)
+                chart.moveViewToX(lineData.entryCount.toFloat() - 5)
+            }
         }
     )
 }

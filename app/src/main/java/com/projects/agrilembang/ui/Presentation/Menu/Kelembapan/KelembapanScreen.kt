@@ -73,7 +73,7 @@ fun KelembapanScreen(
                     fontFamily = intersemibold
                 )
                 Text(
-                    text = "Data Realtime Per 3 Jam",
+                    text = "Data Realtime Per 5 Menit",
                     fontSize = 12.sp,
                     fontFamily = intersemibold,
                     color = Color.Gray
@@ -90,7 +90,6 @@ fun KelembapanScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(sensorsData.keys.toList()) { sensorGroup ->
-                val sensorData = sensorsData[sensorGroup]?.map { it.first } ?: emptyList()
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(Color.White),
@@ -112,14 +111,14 @@ fun KelembapanScreen(
                             fontFamily = intersemibold
                         )
                         Text(
-                            text = "Data Realtime Per 3 Jam",
+                            text = "Data Realtime Per 5 Menit",
                             fontSize = 12.sp,
                             fontFamily = intersemibold,
                             color = Color.Gray
                         )
                         SensorCardWithChart(
                             sensorGroup,
-                            sensorData,
+                            viewModel.humidData,
                             "Humidity",
                             Color(0xFF3354F4),
                             R.drawable.chart_gradient

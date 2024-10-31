@@ -3,6 +3,8 @@ package com.projects.agrilembang
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FloatingActionButtonDefaults.shape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +22,7 @@ import com.projects.agrilembang.firebase.HumidityViewModel
 import com.projects.agrilembang.firebase.SensorViewModel
 import com.projects.agrilembang.firebase.TemperatureViewModel
 import com.projects.agrilembang.navigation.Screen
+import com.projects.agrilembang.retrofit.RetrofitViewModel
 import com.projects.agrilembang.utils.BottomBar
 import com.projects.agrilembang.ui.Components.BottomBar.BottomBar
 import com.projects.agrilembang.ui.Components.fab.FabIcon
@@ -32,6 +35,7 @@ import com.projects.agrilembang.ui.Presentation.Login.LoginScreen
 import com.projects.agrilembang.ui.Presentation.Menu.Beranda.BerandaScreen
 import com.projects.agrilembang.ui.Presentation.Menu.Kelembapan.KelembapanScreen
 import com.projects.agrilembang.ui.Presentation.Menu.Riwayat.RiwayatScreen
+import com.projects.agrilembang.ui.Presentation.Menu.Riwayat.exportSensorDataToCSV
 import com.projects.agrilembang.ui.Presentation.Menu.Suhu.SuhuScreen
 import com.projects.agrilembang.ui.Presentation.Profile.AccountDetail
 import com.projects.agrilembang.ui.Presentation.Profile.ProfileScreen
@@ -46,7 +50,8 @@ fun AgriLembangApp(
     humidityViewModel: HumidityViewModel = viewModel(),
     temperatureViewModel: TemperatureViewModel = viewModel(),
     sensorViewModel: SensorViewModel = viewModel(),
-    heatmapViewModel: HeatmapViewModel = viewModel()
+    heatmapViewModel: HeatmapViewModel = viewModel(),
+    retrofitViewModel: RetrofitViewModel = viewModel()
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -71,19 +76,18 @@ fun AgriLembangApp(
                             iconRes = R.drawable.csvicon,
                             label = "CSV"
                         ),
-                        MultiFabItem(
-                            id = 2,
-                            iconRes = R.drawable.pdficon,
-                            label = "PDF"
-                        ),
                     ),
                     fabIcon = fabIcon,
                     onFabItemClicked = {
-                        Toast.makeText(context, it.label, Toast.LENGTH_SHORT).show()
+                        if (it.id == 1) {
+                            // Access filteredList from RetrofitViewModel
+                            val filteredList = retrofitViewModel.filteredList.value
+                            exportSensorDataToCSV(context, filteredList)
+                        }
                     },
                     fabOption = fabOption(
                         iconTint = Color.White,
-                        showLabel = true
+                        showLabel = true,
                     )
                 )
             }
@@ -114,7 +118,7 @@ fun AgriLembangApp(
                 SuhuScreen(temperatureViewModel)
             }
             composable(Screen.Riwayat.route){
-                RiwayatScreen()
+                RiwayatScreen(retrofitViewModel)
             }
             composable(Screen.Profile.route){
                 ProfileScreen(navController = navController)

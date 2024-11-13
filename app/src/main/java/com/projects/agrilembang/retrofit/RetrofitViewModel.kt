@@ -30,15 +30,21 @@ class RetrofitViewModel : ViewModel() {
         _filteredList.value = filteredList
     }
 
-    private fun fetchSensorData(){
+    fun retryFetchData() {
+        fetchSensorData()
+    }
+
+    private fun fetchSensorData() {
         viewModelScope.launch {
             try {
                 isLoading.value = true
                 errorMessage.value = null
                 val response = ApiClient.apiService.getAllSensorData()
-                sensorDataList.value = response.data
-            } catch (e:Exception) {
-                errorMessage.value = "Failed to fetch sensor data ${e.message}"
+
+                // Menangani nilai null pada response data
+                sensorDataList.value = response.data ?: emptyList() // Jika null, ganti dengan list kosong
+            } catch (e: Exception) {
+                errorMessage.value = "Failed to fetch sensor data. Tap 'Retry' to try again."
             } finally {
                 isLoading.value = false
             }

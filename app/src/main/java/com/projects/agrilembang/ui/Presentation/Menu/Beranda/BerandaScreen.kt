@@ -14,14 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -32,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -59,17 +55,11 @@ fun BerandaScreen(
     sensorViewModel: SensorViewModel ,
     heatmapViewModel: HeatmapViewModel
 ) {
+    val state = rememberLazyListState()
     val dateFormat = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id", "ID"))
     val currentDate = dateFormat.format(Date())
     val database = FirebaseDatabase.getInstance().reference.child("Sensor")
     val sensors = sensorViewModel.sensorData.value
-    val sensorsData by sensorViewModel.sensorsData.collectAsState()
-    val sensorData  = sensorsData.map { (sensorName, values) ->
-        sensorName to (values.firstOrNull() ?: 0f)
-    }
-    val url = "https://gapoktanagrilembang.com/dashboard"
-    val context = LocalContext.current
-
     val sensorTemp by heatmapViewModel.sensorTemp.observeAsState(emptyList())
     val sensorNames by heatmapViewModel.sensorNames.observeAsState(emptyList())
     val positions = listOf(
@@ -166,7 +156,7 @@ fun BerandaScreen(
                     }) {
                     Image(
                         painter = painterResource(
-                            id = R.drawable.userpic
+                            id = R.drawable.profileicon
                         ),
                         contentDescription = "User Picture",
                         modifier
@@ -191,7 +181,7 @@ fun BerandaScreen(
         LazyColumn (
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 10.dp),
+                .padding(top = 10.dp, end = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -199,6 +189,10 @@ fun BerandaScreen(
                 HomeCardLayout(sensor)
             }
         }
+
     }
 }
+
+
+
 
